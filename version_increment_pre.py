@@ -1,6 +1,8 @@
 """ Create version header and tracker file if missing """
 import datetime
 import os
+import subprocess
+import sys
 
 Import("env")
 
@@ -29,6 +31,58 @@ VERSION_HEADER = 'Version.h'
 VERSION_PREFIX = '0.1.'
 VERSION_PATCH_NUMBER = 0
 
+def is_git_directory(path='.'):
+    return subprocess.call(['git', '-C', path, 'status'],
+                           stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
+
+
+def collect_git_info():
+    s = ""
+    if not is_git_directory("."):
+        print("'-DGIT_REPO_PRESENT=0'")
+
+        s += "#define GIT_REPO_PRESENT\t0\n"
+        return s
+
+    revision = (
+        subprocess.check_output(
+            ["git", "describe", "--always", "--dirty", "--tags"])
+        .strip()
+        .decode("utf-8")
+    )
+    author = (
+        subprocess.check_output(
+            ["git", "show", "-s", "--format=format:%an", "HEAD"])
+        .strip()
+        .decode("utf-8")
+    )
+    info = (
+        subprocess.check_output(
+            ["git", "show", "-s", "--format=format:%s", "HEAD"])
+        .strip()
+        .decode("utf-8")
+    )
+    branch = (
+        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        .strip()
+        .decode("utf-8")
+    )
+    commitdate = (
+        subprocess.check_output(
+            ["git", "show", "-s", "--format=format:%cD", "HEAD"])
+        .strip()
+        .decode("utf-8")
+    )
+    s += f"""
+    #define GIT_REPO_PRESENT  1
+    #define GIT_REV\t\"{revision}\"
+    #define GIT_AUTHOR\t\"{author}\"
+    #define GIT_SUBJECT\t\"{info}\"
+    #define GIT_BRANCH\t\"{branch}\"
+    #define GIT_COMMIT_DATE\t\"{commitdate}\"\n
+    """
+    return s
+
 if not os.path.exists(".version_no_increment"):
     try:
         with open(VERSION_FILE) as FILE:
@@ -53,7 +107,7 @@ if not os.path.exists(".version_no_increment"):
         #define BUILD_TIMESTAMP "{}"
     #endif
     """.format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER), datetime.datetime.now())
-
+    HEADER_FILE += collect_git_info()
     if os.environ.get('PLATFORMIO_INCLUDE_DIR') is not None:
         VERSION_HEADER = os.environ.get('PLATFORMIO_INCLUDE_DIR') + os.sep + VERSION_HEADER
     elif os.path.exists("include"):
@@ -74,3 +128,5 @@ else:
         print('Build number: {} (waiting for upload before next increment)'.format(str(VERSION_NUMBER)))
     else:
         print('No version file found or incorrect data in it!!')
+
+
