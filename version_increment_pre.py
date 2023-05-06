@@ -50,8 +50,6 @@ def collect_git_info():
     s = pio_info()
 
     if not is_git_directory("."):
-        print("'-DGIT_REPO_PRESENT=0'")
-
         s += "#define GIT_REPO_PRESENT\t0\n"
         return s
 
