@@ -34,11 +34,11 @@ VERSION_PATCH_NUMBER = 0
 
 def pio_info():
   return  f"""
-      #define PIOENV\t\"{env['PIOENV']}\"
-      #define PIOPLATFORM\t\"{env['PIOPLATFORM']}\"
-      #define PROJECT_DIR\t\"{env['PROJECT_DIR']}\"
-      #define BUILD_TYPE\t\"{env['BUILD_TYPE']}\"
-      #define BOARD\t\"{env['BOARD']}\"
+#define PIOENV\t\"{env['PIOENV']}\"
+#define PIOPLATFORM\t\"{env['PIOPLATFORM']}\"
+#define PROJECT_DIR\t\"{env['PROJECT_DIR']}\"
+#define BUILD_TYPE\t\"{env['BUILD_TYPE']}\"
+#define BOARD\t\"{env['BOARD']}\"
   """
 
 def is_git_directory(path='.'):
@@ -85,12 +85,12 @@ def collect_git_info():
         .decode("utf-8")
     )
     s += f"""
-    #define GIT_REPO_PRESENT  1
-    #define GIT_REV\t\"{revision}\"
-    #define GIT_AUTHOR\t\"{author}\"
-    #define GIT_SUBJECT\t\"{info}\"
-    #define GIT_BRANCH\t\"{branch}\"
-    #define GIT_COMMIT_DATE\t\"{commitdate}\"\n
+#define GIT_REPO_PRESENT  1
+#define GIT_REV\t\"{revision}\"
+#define GIT_AUTHOR\t\"{author}\"
+#define GIT_SUBJECT\t\"{info}\"
+#define GIT_BRANCH\t\"{branch}\"
+#define GIT_COMMIT_DATE\t\"{commitdate}\"\n
     """
     return s
 
@@ -110,13 +110,13 @@ if not os.path.exists(".version_no_increment"):
         print('Build number: {}'.format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER)))
 
     HEADER_FILE = """
-    // AUTO GENERATED FILE, DO NOT EDIT
-    #ifndef VERSION
-        #define VERSION "{}"
-    #endif
-    #ifndef BUILD_TIMESTAMP
-        #define BUILD_TIMESTAMP "{}"
-    #endif
+// AUTO GENERATED FILE, DO NOT EDIT
+#ifndef VERSION
+#define VERSION "{}"
+#endif
+#ifndef BUILD_TIMESTAMP
+#define BUILD_TIMESTAMP "{}"
+#endif
     """.format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER), datetime.datetime.now())
     HEADER_FILE += collect_git_info()
     if os.environ.get('PLATFORMIO_INCLUDE_DIR') is not None:
