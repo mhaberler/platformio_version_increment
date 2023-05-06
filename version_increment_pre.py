@@ -111,6 +111,7 @@ if not os.path.exists(".version_no_increment"):
 
     HEADER_FILE = """
 // AUTO GENERATED FILE, DO NOT EDIT
+#pragma once
 #ifndef VERSION
 #define VERSION "{}"
 #endif
