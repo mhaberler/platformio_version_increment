@@ -110,8 +110,9 @@ if not os.path.exists(".version_no_increment"):
         print('Build number: {}'.format(VERSION_PREFIX + str(VERSION_PATCH_NUMBER)))
 
     HEADER_FILE = """
-// AUTO GENERATED FILE, DO NOT EDIT
 #pragma once
+
+// AUTO GENERATED FILE, DO NOT EDIT
 #ifndef VERSION
 #define VERSION "{}"
 #endif
