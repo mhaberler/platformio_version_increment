@@ -31,13 +31,24 @@ VERSION_HEADER = 'Version.h'
 VERSION_PREFIX = '0.1.'
 VERSION_PATCH_NUMBER = 0
 
+
+def pio_info():
+  return  f"""
+      #define PIOENV\t\"{env['PIOENV']}\"
+      #define PIOPLATFORM\t\"{env['PIOPLATFORM']}\"
+      #define PROJECT_DIR\t\"{env['PROJECT_DIR']}\"
+      #define BUILD_TYPE\t\"{env['BUILD_TYPE']}\"
+      #define BOARD\t\"{env['BOARD']}\"
+  """
+
 def is_git_directory(path='.'):
     return subprocess.call(['git', '-C', path, 'status'],
                            stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
 
 
 def collect_git_info():
-    s = ""
+    s = pio_info()
+
     if not is_git_directory("."):
         print("'-DGIT_REPO_PRESENT=0'")
 
@@ -119,6 +130,8 @@ if not os.path.exists(".version_no_increment"):
 
     with open(VERSION_HEADER, 'w+') as FILE:
         FILE.write(HEADER_FILE)
+    
+    env.Replace(PROGNAME="firmware_%s" % (VERSION_PREFIX + str(VERSION_PATCH_NUMBER)))
 
     open('.version_no_increment', 'a').close()
 else:
@@ -126,7 +139,10 @@ else:
         FILE = open(VERSION_FILE)
         VERSION_NUMBER = FILE.readline()
         print('Build number: {} (waiting for upload before next increment)'.format(str(VERSION_NUMBER)))
+
+        env.Replace(PROGNAME="firmware_%s" % VERSION_NUMBER)
     else:
         print('No version file found or incorrect data in it!!')
+
 
 
