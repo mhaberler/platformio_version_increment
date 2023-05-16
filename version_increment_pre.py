@@ -3,6 +3,7 @@ import datetime
 import os
 import subprocess
 import sys
+import json
 
 Import("env")
 
@@ -45,6 +46,9 @@ def is_git_directory(path='.'):
     return subprocess.call(['git', '-C', path, 'status'],
                            stderr=subprocess.STDOUT, stdout=open(os.devnull, 'w')) == 0
 
+def c_escape(string):
+    return string # FIXME
+    return json.dumps(string)
 
 def collect_git_info():
     s = pio_info()
@@ -84,11 +88,11 @@ def collect_git_info():
     )
     s += f"""
 #define GIT_REPO_PRESENT  1
-#define GIT_REV\t\"{revision}\"
-#define GIT_AUTHOR\t\"{author}\"
-#define GIT_SUBJECT\t\"{info}\"
-#define GIT_BRANCH\t\"{branch}\"
-#define GIT_COMMIT_DATE\t\"{commitdate}\"\n
+#define GIT_REV\t\"{c_escape(revision)}\"
+#define GIT_AUTHOR\t\"{c_escape(author)}\"
+#define GIT_SUBJECT\t\"{c_escape(info)}\"
+#define GIT_BRANCH\t\"{c_escape(branch)}\"
+#define GIT_COMMIT_DATE\t\"{c_escape(commitdate)}\"\n
     """
     return s
 
